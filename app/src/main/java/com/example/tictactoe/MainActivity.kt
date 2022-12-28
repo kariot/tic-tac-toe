@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
             if (c1.text.isNotBlank() && c2.text.isNotBlank() && c3.text.isNotBlank())
                 isThirdRowSame =
                     c1.text.toString() == c2.text.toString() && c2.text.toString() == c3.text.toString()
-
             var firstColumnSame = false
             if (a1.text.isNotBlank() && b1.text.isNotBlank() && c1.text.isNotBlank())
                 firstColumnSame =
@@ -79,7 +78,6 @@ class MainActivity : AppCompatActivity() {
             if (a3.text.isNotBlank() && b3.text.isNotBlank() && c3.text.isNotBlank())
                 thirdColumnSame =
                     a3.text.toString() == b3.text.toString() && b3.text.toString() == c3.text.toString()
-
             var isFirstDiagonalSame = false
             if (a1.text.isNotBlank() && b2.text.isNotBlank() && c3.text.isNotBlank())
                 isFirstDiagonalSame =
@@ -91,9 +89,22 @@ class MainActivity : AppCompatActivity() {
 
             if (isFirstRowSame || isSecondRowSame || isThirdRowSame || firstColumnSame || secondColumnSame || thirdColumnSame || isFirstDiagonalSame || isSecondDiagonalSame) {
                 showResult()
+            } else if(counter == 9) {
+                showDrawAlert()
             }
         }
 
+    }
+
+    private fun showDrawAlert() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Draw..!")
+        builder.setMessage("Match draw")
+        builder.setCancelable(false)
+        builder.setPositiveButton("Continue") { dialog, which ->
+            resetGameUI()
+        }
+        builder.show()
     }
 
     private fun showResult() {
@@ -102,7 +113,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             "Cross"
         }
-
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Hurray..!")
         builder.setMessage("$winner won the game")
@@ -111,7 +121,6 @@ class MainActivity : AppCompatActivity() {
             resetGameUI()
         }
         builder.show()
-
     }
 
     private fun resetGameUI() {
