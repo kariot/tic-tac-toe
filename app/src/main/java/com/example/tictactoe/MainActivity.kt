@@ -2,10 +2,12 @@ package com.example.tictactoe
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tictactoe.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,11 +32,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buttonClick(view: View) {
+        val button = view as? Button ?: return
+        //clicked on a button which was clicked earlier
+        if (button.text.isNotBlank()) {
+            return
+        }
         if (counter == 9) {
             return
         }
         counter++
-        val button = view as? Button ?: return
         if (firstTurn == SelectionType.CROSS) {
             button.text = "x"
             firstTurn = SelectionType.NOUGHT
@@ -47,29 +53,88 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkResult() {
-        var isFirstRowSame = false
-        if (binding.a1.text.isNotBlank() && binding.a2.text.isNotBlank() && binding.a3.text.isNotBlank())
-            isFirstRowSame =
-                binding.a1.text.toString() == binding.a2.text.toString() && binding.a2.text.toString() == binding.a3.text.toString()
-        val isSecondRowSame =
-            binding.b1.text.toString() == binding.b2.text.toString() && binding.b2.text.toString() == binding.b3.text.toString()
-        val isThirdRowSame =
-            binding.c1.text.toString() == binding.c2.text.toString() && binding.c2.text.toString() == binding.c3.text.toString()
+        binding.apply {
+            var isFirstRowSame = false
+            if (a1.text.isNotBlank() && a2.text.isNotBlank() && a3.text.isNotBlank())
+                isFirstRowSame =
+                    a1.text.toString() == a2.text.toString() && a2.text.toString() == a3.text.toString()
+            var isSecondRowSame = false
+            if (b1.text.isNotBlank() && b2.text.isNotBlank() && b3.text.isNotBlank())
+                isSecondRowSame =
+                    b1.text.toString() == b2.text.toString() && b2.text.toString() == b3.text.toString()
+            var isThirdRowSame = false
+            if (c1.text.isNotBlank() && c2.text.isNotBlank() && c3.text.isNotBlank())
+                isThirdRowSame =
+                    c1.text.toString() == c2.text.toString() && c2.text.toString() == c3.text.toString()
 
-        val firstColumnSame =
-            binding.a1.text.toString() == binding.b1.text.toString() && binding.b1.text.toString() == binding.c1.text.toString()
-        val secondColumnSame =
-            binding.a2.text.toString() == binding.b2.text.toString() && binding.b2.text.toString() == binding.c2.text.toString()
-        val thirdColumnSame =
-            binding.a3.text.toString() == binding.b3.text.toString() && binding.b3.text.toString() == binding.c3.text.toString()
+            var firstColumnSame = false
+            if (a1.text.isNotBlank() && b1.text.isNotBlank() && c1.text.isNotBlank())
+                firstColumnSame =
+                    a1.text.toString() == b1.text.toString() && b1.text.toString() == c1.text.toString()
+            var secondColumnSame = false
+            if (a2.text.isNotBlank() && b2.text.isNotBlank() && c2.text.isNotBlank())
+                secondColumnSame =
+                    a2.text.toString() == b2.text.toString() && b2.text.toString() == c2.text.toString()
+            var thirdColumnSame = false
+            if (a3.text.isNotBlank() && b3.text.isNotBlank() && c3.text.isNotBlank())
+                thirdColumnSame =
+                    a3.text.toString() == b3.text.toString() && b3.text.toString() == c3.text.toString()
 
-        val isFirstDiagonalSame =
-            binding.a1.text.toString() == binding.b2.text.toString() && binding.b2.text.toString() == binding.c3.text.toString()
-        val isSecondDiagonalSame =
-            binding.c1.text.toString() == binding.b2.text.toString() && binding.b2.text.toString() == binding.a3.text.toString()
+            var isFirstDiagonalSame = false
+            if (a1.text.isNotBlank() && b2.text.isNotBlank() && c3.text.isNotBlank())
+                isFirstDiagonalSame =
+                    a1.text.toString() == b2.text.toString() && b2.text.toString() == c3.text.toString()
+            var isSecondDiagonalSame = false
+            if (c1.text.isNotBlank() && b2.text.isNotBlank() && c3.text.isNotBlank())
+                isSecondDiagonalSame =
+                    c1.text.toString() == b2.text.toString() && b2.text.toString() == a3.text.toString()
 
-        if (isFirstRowSame || isSecondRowSame || isThirdRowSame || firstColumnSame || secondColumnSame || thirdColumnSame || isFirstDiagonalSame || isSecondDiagonalSame) {
-            Toast.makeText(this, "You have won...", Toast.LENGTH_SHORT).show()
+            if (isFirstRowSame || isSecondRowSame || isThirdRowSame || firstColumnSame || secondColumnSame || thirdColumnSame || isFirstDiagonalSame || isSecondDiagonalSame) {
+                showResult()
+            }
+        }
+
+    }
+
+    private fun showResult() {
+        val winner = if (firstTurn == SelectionType.CROSS) {
+            "Nought"
+        } else {
+            "Cross"
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Hurray..!")
+        builder.setMessage("$winner won the game")
+        builder.setCancelable(false)
+        builder.setPositiveButton("Continue") { dialog, which ->
+            resetGameUI()
+        }
+        builder.show()
+
+    }
+
+    private fun resetGameUI() {
+        counter = 0
+        binding.apply {
+            //reset all button text
+            recursiveLoopChildren(constraintLayout)
+            textView.text = ""
+        }
+    }
+
+    private fun recursiveLoopChildren(parent: ViewGroup) {
+        binding.apply {
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                if (child is ViewGroup) {
+                    recursiveLoopChildren(child)
+                } else {
+                    if (child != null) {
+                        (child as? Button)?.text = ""
+                    }
+                }
+            }
         }
     }
 }
